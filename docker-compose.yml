@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: matemagica-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: matemagica
+      POSTGRES_PASSWORD: matemagica123
+      POSTGRES_DB: matemagica_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - matemagica_pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: matemagica-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@matemagica.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+volumes:
+  matemagica_pgdata:

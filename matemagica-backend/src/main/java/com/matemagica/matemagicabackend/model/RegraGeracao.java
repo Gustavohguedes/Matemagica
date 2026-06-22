@@ -29,7 +29,7 @@ public class RegraGeracao {
     private Atividade atividade;
 
     @Column(name = "nivel_dificuldade", nullable = false, length = 10)
-    private String nivelDificudlade;
+    private String nivelDificuldade;
 
     @Column(name = "tipo_padrao", nullable = false, length = 30)
     private String tipoPadrao;

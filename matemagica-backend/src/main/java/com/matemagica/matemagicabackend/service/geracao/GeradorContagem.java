@@ -26,7 +26,7 @@ public class GeradorContagem implements GeradorDePergunta{
         Map<String, Object> dados = new HashMap<>();
         dados.put("emoji", emoji);
         dados.put("quantidade_exibida", quantidade);
-        dados.put("altermativas", alternativas);
+        dados.put("alternativas", alternativas);
         dados.put("resposta_correta", quantidade);
 
         return dados;

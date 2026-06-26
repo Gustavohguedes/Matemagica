@@ -32,7 +32,7 @@ public class RegraGeracaoController {
     public ResponseEntity<Map<String, Object>> gerarPergunta(@PathVariable UUID id){
         RegraGeracao regra = regraGeracaoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Regra de geração não encontrada: " + id));
-        
+
         Map<String, Object> pergunta = geracaoPerguntaService.gerarPergunta(regra);
 
         return ResponseEntity.ok(pergunta);

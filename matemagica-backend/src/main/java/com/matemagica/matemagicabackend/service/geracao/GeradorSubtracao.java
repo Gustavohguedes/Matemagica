@@ -17,16 +17,16 @@ public class GeradorSubtracao implements GeradorDePergunta{
         int min = (int) parametros.get("min");
         int max = (int) parametros.get("max");
 
-        //sorteia o minueno (maior) e o subtraendo (menor), garantino resultado >= 0
-        int minueno = min + RANDOM.nextInt(max - min + 1);
-        int subtraeno = RANDOM.nextInt(minueno + 1);
-        int respotaCorreta = minueno - subtraeno;
+        //sorteia o minuendo (maior) e o subtraendo (menor), garantino resultado >= 0
+        int minuendo = min + RANDOM.nextInt(max - min + 1);
+        int subtraendo = RANDOM.nextInt(minuendo + 1);
+        int respotaCorreta = minuendo - subtraendo;
 
         List<Integer> alternativas = gerarAlternativas(respotaCorreta);
 
         Map<String, Object> dados = new HashMap<>();
-        dados.put("minueno", minueno);
-        dados.put("subtraeno", subtraeno);
+        dados.put("minuendo", minuendo);
+        dados.put("subtraendo", subtraendo);
         dados.put("alternativas", alternativas);
         dados.put("resposta_correta", respotaCorreta);
 

@@ -1,8 +1,8 @@
 import { Link, useRouter } from "expo-router";
 import { Pressable, ScrollView, Text, View } from "react-native";
+import { useEstrelas } from "../context/EstrelasContext";
 
 const CRIANCA_NOME = "User";
-const TOTAL_ESTRELAS = 0;
 
 const ATIVIDADES = [
   {
@@ -41,6 +41,7 @@ const ATIVIDADES = [
 
 export default function Home() {
   const router = useRouter();
+  const { estrelas } = useEstrelas();
 
   return (
     <ScrollView
@@ -84,7 +85,7 @@ export default function Home() {
       >
         <Text style={{ fontSize: 20 }}>⭐</Text>
         <Text style={{ fontSize: 16, fontWeight: "bold", color: "#92400E" }}>
-          {TOTAL_ESTRELAS} estrelas conquistadas
+          {estrelas} estrelas conquistadas
         </Text>
         <Text style={{ fontSize: 20 }}>🏆</Text>
       </View>

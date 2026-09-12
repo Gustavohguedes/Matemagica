@@ -1,3 +1,4 @@
+import { useEstrelas } from "@/context/EstrelasContext";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -299,6 +300,9 @@ const TOTAL = 8;
 const NIVEIS: Nivel[] = ["nivel 1", "nivel 2", "nivel 3"];
 
 export default function Jogo() {
+  const { adicionarEstrelas } = useEstrelas();
+  const estrelasContabilizadas = useRef(false);
+
   const { tipo } = useLocalSearchParams<{ tipo: string }>();
   const router = useRouter();
   const cfg = CONFIG[tipo ?? "contagem"] ?? CONFIG.contagem;
@@ -346,6 +350,11 @@ export default function Jogo() {
   // ── Tela de resultado ──
   if (fim) {
     const estrelas = acertos >= 7 ? 3 : acertos >= 5 ? 2 : 1;
+
+    if (!estrelasContabilizadas.current) {
+      adicionarEstrelas(estrelas);
+      estrelasContabilizadas.current = true;
+    }
     return (
       <View
         style={{

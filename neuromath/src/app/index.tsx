@@ -1,14 +1,8 @@
-import { useRouter } from "expo-router";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Link, useRouter } from "expo-router";
+import { Pressable, ScrollView, Text, View } from "react-native";
 
-const USER = "user";
-const TOTAL_STARS = 1;
+const CRIANCA_NOME = "User";
+const TOTAL_ESTRELAS = 0;
 
 const ATIVIDADES = [
   {
@@ -45,7 +39,7 @@ const ATIVIDADES = [
   },
 ];
 
-export default function Index() {
+export default function Home() {
   const router = useRouter();
 
   return (
@@ -53,25 +47,25 @@ export default function Index() {
       style={{ flex: 1, backgroundColor: "#F8F9FA" }}
       contentContainerStyle={{ padding: 24, paddingTop: 60 }}
     >
-      {/* Header */}
+      {/* Cabeçalho */}
       <View style={{ alignItems: "center", marginBottom: 24 }}>
         <Text style={{ fontSize: 48, marginBottom: 8 }}>🧮</Text>
         <Text
           style={{
-            fontSize: 24,
+            fontSize: 26,
             fontWeight: "bold",
             color: "#1A1A2E",
             textAlign: "center",
           }}
         >
-          Bem-vindo ao neuroMath, {USER}!
+          Olá, {CRIANCA_NOME}!
         </Text>
         <Text style={{ fontSize: 16, color: "#6B7280", marginTop: 4 }}>
-          Vamos praticar Matemática hoje ?
+          Vamos praticar matemática hoje?
         </Text>
       </View>
 
-      {/* Star counter */}
+      {/* Contador de estrelas */}
       <View
         style={{
           flexDirection: "row",
@@ -89,68 +83,75 @@ export default function Index() {
         }}
       >
         <Text style={{ fontSize: 20 }}>⭐</Text>
-        <Text style={{ fontSize: 16, fontWeight: "bold", color: "#92300E" }}>
-          {TOTAL_STARS} estrelas conquistadas
+        <Text style={{ fontSize: 16, fontWeight: "bold", color: "#92400E" }}>
+          {TOTAL_ESTRELAS} estrelas conquistadas
         </Text>
         <Text style={{ fontSize: 20 }}>🏆</Text>
       </View>
 
-      {/* Activities grid */}
+      {/* Grid de atividades */}
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 16 }}>
         {ATIVIDADES.map((atividade) => (
-          <TouchableOpacity
+          <Link
             key={atividade.tipo}
-            onPress={() =>
-              router.push({
-                pathname: "/jogo/[tipo]",
-                params: { tipo: atividade.tipo },
-              })
-            }
-            activeOpacity={0.85}
-            style={{
-              width: "47%",
-              backgroundColor: atividade.bg,
-              borderColor: atividade.border,
-              borderRadius: 20,
-              padding: 20,
-              alignItems: "center",
-              minHeight: 160,
-              justifyContent: "center",
-              gap: 12,
+            href={{
+              pathname: "/jogo/[tipo]",
+              params: { tipo: atividade.tipo },
             }}
+            asChild
           >
-            <View
+            <Pressable
+              onPress={() => {
+                console.log("🎮 ATIVIDADE SELECIONADA");
+                console.log("📌 Tipo:", atividade.tipo);
+                console.log("📖 Título:", atividade.titulo);
+              }}
               style={{
-                width: 64,
-                height: 64,
-                borderRadius: 16,
-                backgroundColor: atividade.border,
+                width: "47%",
+                backgroundColor: atividade.bg,
+                borderWidth: 2,
+                borderColor: atividade.border,
+                borderRadius: 20,
+                padding: 20,
                 alignItems: "center",
+                minHeight: 160,
                 justifyContent: "center",
+                gap: 12,
               }}
             >
-              <Text style={{ fontSize: 32 }}>{atividade.emoji}</Text>
-            </View>
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "bold",
-                color: "#1A1A2E",
-                textAlign: "center",
-              }}
-            >
-              {atividade.titulo}
-            </Text>
-            <Text
-              style={{ fontSize: 12, color: "#6B7280", textAlign: "center" }}
-            >
-              {atividade.descricao}
-            </Text>
-          </TouchableOpacity>
+              <View
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: 16,
+                  backgroundColor: atividade.border,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ fontSize: 32 }}>{atividade.emoji}</Text>
+              </View>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: "bold",
+                  color: "#1A1A2E",
+                  textAlign: "center",
+                }}
+              >
+                {atividade.titulo}
+              </Text>
+              <Text
+                style={{ fontSize: 12, color: "#6B7280", textAlign: "center" }}
+              >
+                {atividade.descricao}
+              </Text>
+            </Pressable>
+          </Link>
         ))}
       </View>
 
-      {/* footer */}
+      {/* Rodapé */}
       <Text
         style={{
           textAlign: "center",
@@ -159,16 +160,8 @@ export default function Index() {
           marginTop: 32,
         }}
       >
-        🌈 Cada exercício no seu ritmo. Você consegue!
+        🧩 Cada exercício no seu ritmo. Você consegue!
       </Text>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

@@ -54,6 +54,14 @@ const CONFIG: Record<
   },
 };
 
+// --- Emojis por categoria ---------------------------------
+
+const EMOJIS = ["🍎", "⭐", "🐶", "🚗", "🎈", "🐢", "🌟", "🦋", "🍕", "🐱"];
+
+function sortearEmoji(): string {
+  return EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+}
+
 //--- Gerar perguntas mockadas -----------------------------
 
 function gerarAlternativas(correta: number): number[] {
@@ -97,6 +105,7 @@ function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
     const p1 = Math.max(1, Math.floor(Math.random() * (max / 2)));
     const p2 = Math.max(1, Math.floor(Math.random() * (max / 2)));
     return {
+      emoji: sortearEmoji(),
       parcela1: p1,
       parcela2: p2,
       respostaCorreta: p1 + p2,
@@ -108,6 +117,7 @@ function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
     const min = Math.max(2, Math.floor(Math.random() * max));
     const sub = Math.floor(Math.random() * min);
     return {
+      emoji: sortearEmoji(),
       minuendo: min,
       subtraendo: sub,
       respostaCorreta: min - sub,
@@ -155,7 +165,7 @@ function QContagem({ p }: { p: Pergunta }) {
 
 function QAdicao({ p }: { p: Pergunta }) {
   return (
-    <View style={{ alignItems: "center", gap: 8 }}>
+    <View style={{ alignItems: "center", gap: 12 }}>
       <Text style={{ fontSize: 40, fontWeight: "bold", color: "#1A1A2E" }}>
         {p.parcela1} + {p.parcela2} = ?
       </Text>
@@ -168,22 +178,24 @@ function QAdicao({ p }: { p: Pergunta }) {
             flexDirection: "row",
             flexWrap: "wrap",
             gap: 4,
-            maxWidth: 120,
+            maxWidth: 130,
+            justifyContent: "center",
           }}
         >
           {Array.from({ length: p.parcela1 ?? 0 }).map((_, i) => (
-            <View
+            <Text
               key={i}
               style={{
-                width: 16,
-                height: 16,
-                borderRadius: 8,
-                backgroundColor: "#10B981",
+                fontSize: 22,
               }}
-            />
+            >
+              {p.emoji ?? "🍎"}
+            </Text>
           ))}
         </View>
-        <Text style={{ fontSize: 24, fontWeight: "bold" }}>+</Text>
+        <Text style={{ fontSize: 26, fontWeight: "bold", color: "#10B981" }}>
+          +
+        </Text>
         <View
           style={{
             backgroundColor: "#DBEAFE",
@@ -196,15 +208,14 @@ function QAdicao({ p }: { p: Pergunta }) {
           }}
         >
           {Array.from({ length: p.parcela2 ?? 0 }).map((_, i) => (
-            <View
+            <Text
               key={i}
               style={{
-                width: 16,
-                height: 16,
-                borderRadius: 8,
-                backgroundColor: "#3B82F6",
+                fontSize: 22,
               }}
-            />
+            >
+              {p.emoji}
+            </Text>
           ))}
         </View>
       </View>
@@ -214,9 +225,9 @@ function QAdicao({ p }: { p: Pergunta }) {
 
 function QSubtracao({ p }: { p: Pergunta }) {
   return (
-    <View style={{ alignItems: "center", gap: 8 }}>
-      <Text style={{ fontSize: 40, fontWeight: "bold", color: "#1A1A2E" }}>
-        {p.minuendo} - {p.subtraendo} = ?
+    <View style={{ alignItems: "center", gap: 12 }}>
+      <Text style={{ fontSize: 36, fontWeight: "bold", color: "#1A1A2E" }}>
+        {p.minuendo} − {p.subtraendo} = ?
       </Text>
       <View
         style={{
@@ -226,22 +237,25 @@ function QSubtracao({ p }: { p: Pergunta }) {
           flexDirection: "row",
           flexWrap: "wrap",
           gap: 6,
-          maxWidth: 220,
+          maxWidth: 240,
           justifyContent: "center",
         }}
       >
         {Array.from({ length: p.minuendo ?? 0 }).map((_, i) => (
-          <View
+          <Text
             key={i}
             style={{
-              width: 20,
-              height: 20,
-              borderRadius: 10,
-              backgroundColor: i < (p.subtraendo ?? 0) ? "#FCA5A5" : "#EF4444",
+              fontSize: 22,
+              opacity: i >= (p.minuendo ?? 0) - (p.subtraendo ?? 0) ? 0.2 : 1,
             }}
-          />
+          >
+            {p.emoji ?? "🍎"}
+          </Text>
         ))}
       </View>
+      <Text style={{ fontSize: 12, color: "#9CA3AF" }}>
+        Os apagados serão retirados
+      </Text>
     </View>
   );
 }

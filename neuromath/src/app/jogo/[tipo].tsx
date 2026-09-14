@@ -332,15 +332,29 @@ export default function Jogo() {
   // Gera 8 perguntas ao montar ou trocar nível
   useEffect(() => {
     console.log("Jogo montado tipo=", tipo);
+
+    estrelasContabilizadas.current = false;
+
     const ps = Array.from({ length: TOTAL }, () =>
       gerarPergunta(tipo ?? "contagem", nivel),
     );
+
     setPerguntas(ps);
     setAtual(0);
     setAcertos(0);
     setRespondida(null);
     setFim(false);
   }, [tipo, nivel]);
+
+  //Contabilizador de estrelas
+  useEffect(() => {
+    if (!fim || estrelasContabilizadas.current) return;
+
+    const estrelas = acertos >= 7 ? 3 : acertos >= 5 ? 2 : 1;
+
+    adicionarEstrelas(estrelas);
+    estrelasContabilizadas.current = true;
+  }, [fim, acertos, adicionarEstrelas]);
 
   const pergunta = perguntas[atual];
   const progresso = ((atual + 1) / TOTAL) * 100;
@@ -365,10 +379,6 @@ export default function Jogo() {
   if (fim) {
     const estrelas = acertos >= 7 ? 3 : acertos >= 5 ? 2 : 1;
 
-    if (!estrelasContabilizadas.current) {
-      adicionarEstrelas(estrelas);
-      estrelasContabilizadas.current = true;
-    }
     return (
       <View
         style={{
@@ -399,6 +409,8 @@ export default function Jogo() {
         </Text>
         <TouchableOpacity
           onPress={() => {
+            estrelasContabilizadas.current = false;
+
             setAtual(0);
             setAcertos(0);
             setRespondida(null);

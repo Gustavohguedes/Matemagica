@@ -1,4 +1,5 @@
 import { useEstrelas } from "@/context/EstrelasContext";
+import { ResultadoPergunta } from "@/models/ResultadoPergunta";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -10,23 +11,33 @@ type Nivel = "nivel 1" | "nivel 2" | "nivel 3";
 interface Pergunta {
   alternativas: number[];
   respostaCorreta: number;
-  //contagem
+
+  // contagem
   emoji?: string;
   quantidadeExibida?: number;
-  //adicao
+
+  // adicao
   parcela1?: number;
   parcela2?: number;
-  //subtracao
+
+  // subtracao
   minuendo?: number;
   subtraendo?: number;
-  //sequencia
+
+  // sequencia
   sequencia?: number[];
 }
 
 // --- Config Visual por type -----------------------
+
 const CONFIG: Record<
   string,
-  { titulo: string; emoji: string; cor: string; corClara: string }
+  {
+    titulo: string;
+    emoji: string;
+    cor: string;
+    corClara: string;
+  }
 > = {
   contagem: {
     titulo: "Contagem",
@@ -34,18 +45,21 @@ const CONFIG: Record<
     cor: "#6366F1",
     corClara: "#E8E4FF",
   },
+
   adicao: {
     titulo: "Adição",
     emoji: "➕",
     cor: "#10B981",
     corClara: "#D6F5EC",
   },
+
   subtracao: {
     titulo: "Subtração",
     emoji: "➖",
     cor: "#EF4444",
     corClara: "#FFE4E4",
   },
+
   sequencia: {
     titulo: "Sequência",
     emoji: "🔗",
@@ -62,7 +76,7 @@ function sortearEmoji(): string {
   return EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
 }
 
-//--- Gerar perguntas mockadas -----------------------------
+// --- Gerar perguntas mockadas -----------------------------
 
 function gerarAlternativas(correta: number): number[] {
   const alternativas = new Set<number>([correta]);
@@ -79,20 +93,19 @@ function gerarAlternativas(correta: number): number[] {
     }
   }
 
-  console.log("🎲 alternativas geradas: ", {
-    correta,
-    alternativas: [...alternativas],
-  });
-
   return [...alternativas].sort(() => Math.random() - 0.5);
 }
 
 function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
   const max = nivel === "nivel 1" ? 10 : nivel === "nivel 2" ? 20 : 30;
 
+  // ---------------- CONTAGEM ----------------
+
   if (tipo === "contagem") {
     const emoji = ["🍎", "⭐", "🐶", "🚗", "🎈", "🐢", "🌟"];
+
     const qtd = Math.max(1, Math.floor(Math.random() * max));
+
     return {
       emoji: emoji[Math.floor(Math.random() * emoji.length)],
       quantidadeExibida: qtd,
@@ -101,9 +114,13 @@ function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
     };
   }
 
+  // ---------------- ADIÇÃO ----------------
+
   if (tipo === "adicao") {
     const p1 = Math.max(1, Math.floor(Math.random() * (max / 2)));
+
     const p2 = Math.max(1, Math.floor(Math.random() * (max / 2)));
+
     return {
       emoji: sortearEmoji(),
       parcela1: p1,
@@ -113,9 +130,13 @@ function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
     };
   }
 
+  // ---------------- SUBTRAÇÃO ----------------
+
   if (tipo === "subtracao") {
     const min = Math.max(2, Math.floor(Math.random() * max));
+
     const sub = Math.floor(Math.random() * min);
+
     return {
       emoji: sortearEmoji(),
       minuendo: min,
@@ -125,11 +146,16 @@ function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
     };
   }
 
-  //sequencia
+  // ---------------- SEQUÊNCIA ----------------
+
   const passo = nivel === "nivel 3" ? Math.floor(Math.random() * 3) + 2 : 1;
+
   const inicio = Math.max(1, Math.floor(Math.random() * (max - passo * 4)));
+
   const seq = [0, 1, 2, 3].map((i) => inicio + i * passo);
+
   const correta = inicio + 4 * passo;
+
   return {
     sequencia: seq,
     respostaCorreta: correta,
@@ -141,20 +167,38 @@ function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
 
 function QContagem({ p }: { p: Pergunta }) {
   return (
-    <View style={{ alignItems: "center", gap: 12 }}>
-      <Text style={{ fontSize: 16, color: "#6B7280" }}>
+    <View
+      style={{
+        alignItems: "center",
+        gap: 12,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 16,
+          color: "#6B7280",
+        }}
+      >
         Quantos {p.emoji} você vê?
       </Text>
+
       <View
         style={{
           flexDirection: "row",
           flexWrap: "wrap",
           justifyContent: "center",
-          gap: 8,
+          gap: 4,
         }}
       >
-        {Array.from({ length: p.quantidadeExibida ?? 0 }).map((_, i) => (
-          <Text key={i} style={{ fontSize: 32 }}>
+        {Array.from({
+          length: p.quantidadeExibida ?? 0,
+        }).map((_, i) => (
+          <Text
+            key={i}
+            style={{
+              fontSize: 32,
+            }}
+          >
             {p.emoji}
           </Text>
         ))}
@@ -165,11 +209,29 @@ function QContagem({ p }: { p: Pergunta }) {
 
 function QAdicao({ p }: { p: Pergunta }) {
   return (
-    <View style={{ alignItems: "center", gap: 12 }}>
-      <Text style={{ fontSize: 40, fontWeight: "bold", color: "#1A1A2E" }}>
+    <View
+      style={{
+        alignItems: "center",
+        gap: 12,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 40,
+          fontWeight: "bold",
+          color: "#1A1A2E",
+        }}
+      >
         {p.parcela1} + {p.parcela2} = ?
       </Text>
-      <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
+
+      <View
+        style={{
+          flexDirection: "row",
+          gap: 12,
+          alignItems: "center",
+        }}
+      >
         <View
           style={{
             backgroundColor: "#D6F5EC",
@@ -182,7 +244,9 @@ function QAdicao({ p }: { p: Pergunta }) {
             justifyContent: "center",
           }}
         >
-          {Array.from({ length: p.parcela1 ?? 0 }).map((_, i) => (
+          {Array.from({
+            length: p.parcela1 ?? 0,
+          }).map((_, i) => (
             <Text
               key={i}
               style={{
@@ -193,9 +257,17 @@ function QAdicao({ p }: { p: Pergunta }) {
             </Text>
           ))}
         </View>
-        <Text style={{ fontSize: 26, fontWeight: "bold", color: "#10B981" }}>
+
+        <Text
+          style={{
+            fontSize: 26,
+            fontWeight: "bold",
+            color: "#10B981",
+          }}
+        >
           +
         </Text>
+
         <View
           style={{
             backgroundColor: "#DBEAFE",
@@ -207,7 +279,9 @@ function QAdicao({ p }: { p: Pergunta }) {
             maxWidth: 120,
           }}
         >
-          {Array.from({ length: p.parcela2 ?? 0 }).map((_, i) => (
+          {Array.from({
+            length: p.parcela2 ?? 0,
+          }).map((_, i) => (
             <Text
               key={i}
               style={{
@@ -225,10 +299,22 @@ function QAdicao({ p }: { p: Pergunta }) {
 
 function QSubtracao({ p }: { p: Pergunta }) {
   return (
-    <View style={{ alignItems: "center", gap: 12 }}>
-      <Text style={{ fontSize: 36, fontWeight: "bold", color: "#1A1A2E" }}>
+    <View
+      style={{
+        alignItems: "center",
+        gap: 12,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 36,
+          fontWeight: "bold",
+          color: "#1A1A2E",
+        }}
+      >
         {p.minuendo} − {p.subtraendo} = ?
       </Text>
+
       <View
         style={{
           backgroundColor: "#FFE4E4",
@@ -241,7 +327,9 @@ function QSubtracao({ p }: { p: Pergunta }) {
           justifyContent: "center",
         }}
       >
-        {Array.from({ length: p.minuendo ?? 0 }).map((_, i) => (
+        {Array.from({
+          length: p.minuendo ?? 0,
+        }).map((_, i) => (
           <Text
             key={i}
             style={{
@@ -253,7 +341,13 @@ function QSubtracao({ p }: { p: Pergunta }) {
           </Text>
         ))}
       </View>
-      <Text style={{ fontSize: 12, color: "#9CA3AF" }}>
+
+      <Text
+        style={{
+          fontSize: 12,
+          color: "#9CA3AF",
+        }}
+      >
         Os apagados serão retirados
       </Text>
     </View>
@@ -262,11 +356,27 @@ function QSubtracao({ p }: { p: Pergunta }) {
 
 function QSequencia({ p }: { p: Pergunta }) {
   return (
-    <View style={{ alignItems: "center", gap: 12 }}>
-      <Text style={{ fontSize: 16, color: "#6B7280" }}>
+    <View
+      style={{
+        alignItems: "center",
+        gap: 12,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 16,
+          color: "#6B7280",
+        }}
+      >
         Complete a sequência:
       </Text>
-      <View style={{ flexDirection: "row", gap: 8 }}>
+
+      <View
+        style={{
+          flexDirection: "row",
+          gap: 8,
+        }}
+      >
         {(p.sequencia ?? []).map((n, i) => (
           <View
             key={i}
@@ -280,12 +390,17 @@ function QSequencia({ p }: { p: Pergunta }) {
             }}
           >
             <Text
-              style={{ fontSize: 20, fontWeight: "bold", color: "#1A1A2E" }}
+              style={{
+                fontSize: 20,
+                fontWeight: "bold",
+                color: "#1A1A2E",
+              }}
             >
               {n}
             </Text>
           </View>
         ))}
+
         <View
           style={{
             width: 48,
@@ -299,7 +414,13 @@ function QSequencia({ p }: { p: Pergunta }) {
             backgroundColor: "#FFFBEB",
           }}
         >
-          <Text style={{ fontSize: 20, fontWeight: "bold", color: "#F59E0B" }}>
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              color: "#F59E0B",
+            }}
+          >
             ?
           </Text>
         </View>
@@ -308,31 +429,111 @@ function QSequencia({ p }: { p: Pergunta }) {
   );
 }
 
-//---- Tela Principal -------------------------------------------------
+// --- Componente de métrica ------------------------------
+
+function MetricaItem({
+  label,
+  valor,
+  cor,
+}: {
+  label: string;
+  valor: string;
+  cor: string;
+}) {
+  return (
+    <View
+      style={{
+        alignItems: "center",
+        gap: 4,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 22,
+          fontWeight: "bold",
+          color: cor,
+        }}
+      >
+        {valor}
+      </Text>
+
+      <Text
+        style={{
+          fontSize: 11,
+          color: "#9CA3AF",
+          textAlign: "center",
+        }}
+      >
+        {label}
+      </Text>
+    </View>
+  );
+}
+
+// ---------------------------------------------------------
+// Tela Principal
+// ---------------------------------------------------------
 
 const TOTAL = 8;
+
 const NIVEIS: Nivel[] = ["nivel 1", "nivel 2", "nivel 3"];
 
 export default function Jogo() {
   const { adicionarEstrelas } = useEstrelas();
+
   const estrelasContabilizadas = useRef(false);
 
-  const { tipo } = useLocalSearchParams<{ tipo: string }>();
+  // -------------------------------------------------------
+  // Navegação
+  // -------------------------------------------------------
+
+  const { tipo } = useLocalSearchParams<{
+    tipo: string;
+  }>();
+
   const router = useRouter();
+
   const cfg = CONFIG[tipo ?? "contagem"] ?? CONFIG.contagem;
 
+  // -------------------------------------------------------
+  // Estados do jogo
+  // -------------------------------------------------------
+
   const [nivel, setNivel] = useState<Nivel>("nivel 1");
+
   const [perguntas, setPerguntas] = useState<Pergunta[]>([]);
+
   const [atual, setAtual] = useState(0);
+
   const [acertos, setAcertos] = useState(0);
+
   const [respondida, setRespondida] = useState<number | null>(null);
+
   const [fim, setFim] = useState(false);
+
+  // -------------------------------------------------------
+  // Métricas de tempo
+  // -------------------------------------------------------
+
+  const [resultados, setResultados] = useState<ResultadoPergunta[]>([]);
+
+  /**
+   * Guarda o momento em que a pergunta atual
+   * começou a ser respondida.
+   */
+  const inicioPerguntaRef = useRef<number>(Date.now());
+
+  /**
+   * Guarda o timeout utilizado para passar
+   * para a próxima pergunta.
+   */
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Gera 8 perguntas ao montar ou trocar nível
-  useEffect(() => {
-    console.log("Jogo montado tipo=", tipo);
+  // -------------------------------------------------------
+  // Gerar perguntas
+  // -------------------------------------------------------
 
+  useEffect(() => {
     estrelasContabilizadas.current = false;
 
     const ps = Array.from({ length: TOTAL }, () =>
@@ -344,28 +545,106 @@ export default function Jogo() {
     setAcertos(0);
     setRespondida(null);
     setFim(false);
+
+    // Limpa os resultados da partida anterior
+    setResultados([]);
+
+    // Começa a contar a primeira pergunta
+    inicioPerguntaRef.current = Date.now();
   }, [tipo, nivel]);
 
-  //Contabilizador de estrelas
+  // -------------------------------------------------------
+  // Iniciar cronômetro da pergunta atual
+  // -------------------------------------------------------
+
   useEffect(() => {
-    if (!fim || estrelasContabilizadas.current) return;
+    if (!perguntas.length) return;
+
+    inicioPerguntaRef.current = Date.now();
+  }, [atual, perguntas.length]);
+
+  // -------------------------------------------------------
+  // Limpar timeout quando sair da tela
+  // -------------------------------------------------------
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  // -------------------------------------------------------
+  // Contabilizador de estrelas
+  // -------------------------------------------------------
+
+  useEffect(() => {
+    if (!fim || estrelasContabilizadas.current) {
+      return;
+    }
 
     const estrelas = acertos >= 7 ? 3 : acertos >= 5 ? 2 : 1;
 
     adicionarEstrelas(estrelas);
+
     estrelasContabilizadas.current = true;
   }, [fim, acertos, adicionarEstrelas]);
 
+  // -------------------------------------------------------
+  // Pergunta atual
+  // -------------------------------------------------------
+
   const pergunta = perguntas[atual];
+
   const progresso = ((atual + 1) / TOTAL) * 100;
 
-  function responder(alt: number) {
-    if (respondida !== null) return;
-    setRespondida(alt);
-    const acertou = alt === pergunta.respostaCorreta;
-    if (acertou) setAcertos((a) => a + 1);
+  // -------------------------------------------------------
+  // Responder pergunta
+  // -------------------------------------------------------
 
-    setTimeout(() => {
+  function responder(alt: number) {
+    // Impede responder duas vezes
+    if (respondida !== null) return;
+
+    // -----------------------------------------------------
+    // Calcula o tempo gasto nesta pergunta
+    // -----------------------------------------------------
+
+    const fimPergunta = Date.now();
+
+    const tempo = (fimPergunta - inicioPerguntaRef.current) / 1000;
+
+    // Verifica se acertou
+    const acertou = alt === pergunta.respostaCorreta;
+
+    // Mostra visualmente a resposta selecionada
+    setRespondida(alt);
+
+    // Incrementa os acertos
+    if (acertou) {
+      setAcertos((a) => a + 1);
+    }
+
+    // -----------------------------------------------------
+    // Salva o resultado desta pergunta
+    // -----------------------------------------------------
+
+    setResultados((resultadosAtuais) => [
+      ...resultadosAtuais,
+      {
+        numero: atual + 1,
+        correta: acertou,
+        tempo,
+      },
+    ]);
+
+    // -----------------------------------------------------
+    // Aguarda 900ms para mostrar o resultado
+    // antes de mudar de pergunta
+    // -----------------------------------------------------
+
+    timeoutRef.current = setTimeout(() => {
       if (atual + 1 >= TOTAL) {
         setFim(true);
       } else {
@@ -375,21 +654,58 @@ export default function Jogo() {
     }, 900);
   }
 
-  // ── Tela de resultado ──
+  // ---------------------------------------------------------
+  // Métricas da partida
+  // ---------------------------------------------------------
+
+  const tempoTotal = resultados.reduce(
+    (total, resultado) => total + resultado.tempo,
+    0,
+  );
+
+  const tempoMedio = resultados.length > 0 ? tempoTotal / resultados.length : 0;
+
+  const tempoMaisRapido =
+    resultados.length > 0
+      ? Math.min(...resultados.map((resultado) => resultado.tempo))
+      : 0;
+
+  const tempoMaisLento =
+    resultados.length > 0
+      ? Math.max(...resultados.map((resultado) => resultado.tempo))
+      : 0;
+
+  // ---------------------------------------------------------
+  // Tela de resultado
+  // ---------------------------------------------------------
+
   if (fim) {
     const estrelas = acertos >= 7 ? 3 : acertos >= 5 ? 2 : 1;
 
     return (
-      <View
+      <ScrollView
         style={{
           flex: 1,
           backgroundColor: "#F8F9FA",
-          alignItems: "center",
-          justifyContent: "center",
+        }}
+        contentContainerStyle={{
           padding: 32,
+          alignItems: "center",
         }}
       >
-        <Text style={{ fontSize: 64 }}>{"⭐".repeat(estrelas)}</Text>
+        {/* Estrelas */}
+
+        <Text
+          style={{
+            fontSize: 64,
+            marginTop: 30,
+          }}
+        >
+          {"⭐".repeat(estrelas)}
+        </Text>
+
+        {/* Título */}
+
         <Text
           style={{
             fontSize: 28,
@@ -404,9 +720,161 @@ export default function Jogo() {
               ? "Muito bem!"
               : "Continue praticando!"}
         </Text>
-        <Text style={{ fontSize: 18, color: "#6B7280", marginTop: 8 }}>
+
+        {/* Acertos */}
+
+        <Text
+          style={{
+            fontSize: 18,
+            color: "#6B7280",
+            marginTop: 8,
+          }}
+        >
           {acertos} de {TOTAL} acertos
         </Text>
+
+        {/* -------------------------------------------------
+            Resumo das métricas
+        ------------------------------------------------- */}
+
+        <View
+          style={{
+            width: "100%",
+            backgroundColor: "white",
+            borderRadius: 20,
+            padding: 20,
+            marginTop: 28,
+            borderWidth: 1,
+            borderColor: "#E5E7EB",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "bold",
+              color: "#1A1A2E",
+              marginBottom: 20,
+            }}
+          >
+            Tempo de resposta
+          </Text>
+
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-around",
+              flexWrap: "wrap",
+              gap: 20,
+            }}
+          >
+            <MetricaItem
+              label="Tempo médio"
+              valor={`${tempoMedio.toFixed(1)}s`}
+              cor={cfg.cor}
+            />
+
+            <MetricaItem
+              label="Mais rápido"
+              valor={`${tempoMaisRapido.toFixed(1)}s`}
+              cor="#10B981"
+            />
+
+            <MetricaItem
+              label="Mais lento"
+              valor={`${tempoMaisLento.toFixed(1)}s`}
+              cor="#EF4444"
+            />
+
+            <MetricaItem
+              label="Tempo total"
+              valor={`${tempoTotal.toFixed(1)}s`}
+              cor="#6366F1"
+            />
+          </View>
+        </View>
+
+        {/* -------------------------------------------------
+            Resultado por pergunta
+        ------------------------------------------------- */}
+
+        <View
+          style={{
+            width: "100%",
+            backgroundColor: "white",
+            borderRadius: 20,
+            padding: 20,
+            marginTop: 16,
+            borderWidth: 1,
+            borderColor: "#E5E7EB",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "bold",
+              color: "#1A1A2E",
+              marginBottom: 16,
+            }}
+          >
+            Resultado por questão
+          </Text>
+
+          {resultados.map((resultado) => (
+            <View
+              key={resultado.numero}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingVertical: 12,
+                borderBottomWidth: 1,
+                borderBottomColor: "#F3F4F6",
+              }}
+            >
+              {/* Número da questão */}
+
+              <Text
+                style={{
+                  fontSize: 15,
+                  color: "#374151",
+                  flex: 1,
+                }}
+              >
+                Questão {resultado.numero}
+              </Text>
+
+              {/* Resultado */}
+
+              <Text
+                style={{
+                  fontSize: 20,
+                  marginRight: 16,
+                }}
+              >
+                {resultado.correta ? "✅" : "❌"}
+              </Text>
+
+              {/* Tempo */}
+
+              <Text
+                style={{
+                  fontSize: 15,
+                  fontWeight: "bold",
+                  color: "#6B7280",
+                  width: 55,
+                  textAlign: "right",
+                }}
+              >
+                {resultado.tempo.toFixed(1)}s
+              </Text>
+            </View>
+          ))}
+        </View>
+
+        {/* -------------------------------------------------
+            Jogar novamente
+        ------------------------------------------------- */}
+
         <TouchableOpacity
           onPress={() => {
             estrelasContabilizadas.current = false;
@@ -415,25 +883,40 @@ export default function Jogo() {
             setAcertos(0);
             setRespondida(null);
             setFim(false);
+            setResultados([]);
+
             setPerguntas(
               Array.from({ length: TOTAL }, () =>
                 gerarPergunta(tipo ?? "contagem", nivel),
               ),
             );
+
+            inicioPerguntaRef.current = Date.now();
           }}
           style={{
             backgroundColor: cfg.cor,
             borderRadius: 16,
             padding: 16,
-            marginTop: 32,
+            marginTop: 24,
             width: "100%",
             alignItems: "center",
           }}
         >
-          <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>
+          <Text
+            style={{
+              color: "white",
+              fontWeight: "bold",
+              fontSize: 16,
+            }}
+          >
             Jogar novamente
           </Text>
         </TouchableOpacity>
+
+        {/* -------------------------------------------------
+            Voltar ao início
+        ------------------------------------------------- */}
+
         <TouchableOpacity
           onPress={() => router.replace("/")}
           style={{
@@ -446,22 +929,45 @@ export default function Jogo() {
             alignItems: "center",
           }}
         >
-          <Text style={{ color: cfg.cor, fontWeight: "bold", fontSize: 16 }}>
+          <Text
+            style={{
+              color: cfg.cor,
+              fontWeight: "bold",
+              fontSize: 16,
+            }}
+          >
             Voltar ao início
           </Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     );
   }
 
+  // ---------------------------------------------------------
+  // Enquanto as perguntas ainda não foram carregadas
+  // ---------------------------------------------------------
+
   if (!pergunta) return null;
+
+  // ---------------------------------------------------------
+  // Tela do jogo
+  // ---------------------------------------------------------
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: "#F8F9FA" }}
-      contentContainerStyle={{ padding: 24, paddingTop: 56 }}
+      style={{
+        flex: 1,
+        backgroundColor: "#F8F9FA",
+      }}
+      contentContainerStyle={{
+        padding: 24,
+        paddingTop: 56,
+      }}
     >
-      {/* Header */}
+      {/* ---------------------------------------------------
+          Header
+      --------------------------------------------------- */}
+
       <View
         style={{
           flexDirection: "row",
@@ -481,11 +987,25 @@ export default function Jogo() {
             justifyContent: "center",
           }}
         >
-          <Text style={{ fontSize: 18 }}>←</Text>
+          <Text
+            style={{
+              fontSize: 18,
+            }}
+          >
+            ←
+          </Text>
         </TouchableOpacity>
-        <Text style={{ fontSize: 20, fontWeight: "bold", color: "#1A1A2E" }}>
+
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            color: "#1A1A2E",
+          }}
+        >
           {cfg.emoji} {cfg.titulo}
         </Text>
+
         <TouchableOpacity
           onPress={() => router.replace("/")}
           style={{
@@ -497,11 +1017,20 @@ export default function Jogo() {
             justifyContent: "center",
           }}
         >
-          <Text style={{ fontSize: 18 }}>🏠</Text>
+          <Text
+            style={{
+              fontSize: 18,
+            }}
+          >
+            🏠
+          </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Progresso */}
+      {/* ---------------------------------------------------
+          Progresso
+      --------------------------------------------------- */}
+
       <View
         style={{
           flexDirection: "row",
@@ -509,13 +1038,26 @@ export default function Jogo() {
           marginBottom: 6,
         }}
       >
-        <Text style={{ fontSize: 13, color: "#6B7280" }}>
+        <Text
+          style={{
+            fontSize: 13,
+            color: "#6B7280",
+          }}
+        >
           {atual + 1} de {TOTAL}
         </Text>
-        <Text style={{ fontSize: 13, color: cfg.cor, fontWeight: "bold" }}>
+
+        <Text
+          style={{
+            fontSize: 13,
+            color: cfg.cor,
+            fontWeight: "bold",
+          }}
+        >
           {Math.round(progresso)}%
         </Text>
       </View>
+
       <View
         style={{
           height: 8,
@@ -534,7 +1076,10 @@ export default function Jogo() {
         />
       </View>
 
-      {/* Seletor de nível */}
+      {/* ---------------------------------------------------
+          Seletor de nível
+      --------------------------------------------------- */}
+
       <View
         style={{
           flexDirection: "row",
@@ -569,7 +1114,10 @@ export default function Jogo() {
         ))}
       </View>
 
-      {/* Card da pergunta */}
+      {/* ---------------------------------------------------
+          Card da pergunta
+      --------------------------------------------------- */}
+
       <View
         style={{
           backgroundColor: "white",
@@ -584,18 +1132,33 @@ export default function Jogo() {
         }}
       >
         {tipo === "contagem" && <QContagem p={pergunta} />}
+
         {tipo === "adicao" && <QAdicao p={pergunta} />}
+
         {tipo === "subtracao" && <QSubtracao p={pergunta} />}
+
         {tipo === "sequencia" && <QSequencia p={pergunta} />}
       </View>
 
-      {/* Alternativas */}
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
+      {/* ---------------------------------------------------
+          Alternativas
+      --------------------------------------------------- */}
+
+      <View
+        style={{
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: 12,
+        }}
+      >
         {pergunta.alternativas.map((alt, i) => {
           const correta = alt === pergunta.respostaCorreta;
+
           const selecionada = respondida === alt;
+
           let bg = "white";
           let border = "#E5E7EB";
+
           if (respondida !== null && correta) {
             bg = "#D1FAE5";
             border = "#10B981";
@@ -619,7 +1182,11 @@ export default function Jogo() {
               }}
             >
               <Text
-                style={{ fontSize: 28, fontWeight: "bold", color: "#1A1A2E" }}
+                style={{
+                  fontSize: 28,
+                  fontWeight: "bold",
+                  color: "#1A1A2E",
+                }}
               >
                 {respondida !== null && correta ? `✅ ${alt}` : alt}
               </Text>

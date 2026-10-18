@@ -1,5 +1,5 @@
-import { useEstrelas } from "@/context/EstrelasContext";
 import { AppText as Text } from "@/components/AppText";
+import { useEstrelas } from "@/context/EstrelasContext";
 import { ResultadoPergunta } from "@/models/ResultadoPergunta";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -235,7 +235,7 @@ function QContagem({ p }: { p: Pergunta }) {
           fontFamily: "AtkinsonHyperlegible_400Regular",
         }}
       >
-        Quantos {p.emoji} você vê?
+        Quantos {p.emoji} você vê dentro da caixa?
       </Text>
 
       <View
@@ -244,6 +244,12 @@ function QContagem({ p }: { p: Pergunta }) {
           flexWrap: "wrap",
           justifyContent: "center",
           gap: 4,
+          backgroundColor: "#E8E4FF",
+          borderRadius: 16,
+          padding: 16,
+          borderWidth: 2,
+          borderColor: "#C4B8FF",
+          maxWidth: 260,
         }}
       >
         {Array.from({
@@ -354,6 +360,24 @@ function QAdicao({ p }: { p: Pergunta }) {
 }
 
 function QSubtracao({ p }: { p: Pergunta }) {
+  const total = p.minuendo ?? 0;
+  const aRemovidos = p.subtraendo ?? 0;
+  const [removidos, setRemovidos] = useState<Set<number>>(new Set());
+
+  function toggleRemover(i: number) {
+    setRemovidos((prev) => {
+      const novo = new Set(prev);
+      if (novo.has(i)) {
+        novo.delete(i);
+      } else if (novo.size < aRemovidos) {
+        novo.add(i);
+      }
+      return novo;
+    });
+  }
+
+  const todosRemovidos = removidos.size === aRemovidos;
+
   return (
     <View
       style={{
@@ -384,27 +408,29 @@ function QSubtracao({ p }: { p: Pergunta }) {
         }}
       >
         {Array.from({
-          length: p.minuendo ?? 0,
+          length: total,
         }).map((_, i) => (
-          <Text
+          <TouchableOpacity
             key={i}
-            style={{
-              fontSize: 22,
-              opacity: i >= (p.minuendo ?? 0) - (p.subtraendo ?? 0) ? 0.2 : 1,
-            }}
+            onPress={() => toggleRemover(i)}
+            activeOpacity={0.7}
           >
-            {p.emoji ?? "🍎"}
-          </Text>
+            <Text
+              style={{
+                fontSize: 22,
+                opacity: removidos.has(i) ? 0.15 : 1,
+              }}
+            >
+              {p.emoji ?? "🍎"}
+            </Text>
+          </TouchableOpacity>
         ))}
       </View>
 
-      <Text
-        style={{
-          fontSize: 12,
-          color: "#9CA3AF",
-        }}
-      >
-        Os apagados serão retirados
+      <Text style={{ fontSize: 12, color: "#6B7280" }}>
+        {todosRemovidos
+          ? `✅ Você retirou ${aRemovidos}!`
+          : `Toque para retirar ${aRemovidos - removidos.size} ${p.emoji}`}
       </Text>
     </View>
   );

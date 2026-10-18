@@ -231,6 +231,7 @@ function QContagem({ p }: { p: Pergunta }) {
           fontSize: 20,
           color: "#1F2937",
           fontWeight: "600",
+          fontFamily: "AtkinsonHyperlegible_400Regular",
         }}
       >
         Quantos {p.emoji} você vê?
@@ -1088,8 +1089,9 @@ export default function Jogo() {
       >
         <Text
           style={{
-            fontSize: 13,
-            color: "#6B7280",
+            fontSize: 14,
+            color: "#374151",
+            fontWeight: "600",
           }}
         >
           {atual + 1} de {TOTAL}
@@ -1110,16 +1112,17 @@ export default function Jogo() {
         style={{
           height: 8,
           backgroundColor: "#E5E7EB",
-          borderRadius: 4,
+          borderRadius: 6,
           marginBottom: 20,
         }}
       >
         <View
           style={{
-            height: 8,
+            height: 12,
             backgroundColor: cfg.cor,
-            borderRadius: 4,
+            borderRadius: 6,
             width: `${progresso}%`,
+            minWidth: 12,
           }}
         />
       </View>

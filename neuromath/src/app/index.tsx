@@ -138,7 +138,7 @@ export default function Home() {
                 {atividade.titulo}
               </Text>
               <Text
-                style={{ fontSize: 12, color: "#334155", textAlign: "center" }}
+                style={{ fontSize: 12, color: "#0c0c0c", textAlign: "center" }}
               >
                 {atividade.descricao}
               </Text>

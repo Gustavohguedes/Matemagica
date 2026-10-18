@@ -1,8 +1,9 @@
 import { useEstrelas } from "@/context/EstrelasContext";
+import { AppText as Text } from "@/components/AppText";
 import { ResultadoPergunta } from "@/models/ResultadoPergunta";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, TouchableOpacity, View } from "react-native";
 
 // --- Types -------------------------
 
@@ -186,7 +187,7 @@ function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
 
   // ---------------- SEQUÊNCIA ----------------
 
-  const passo = nivel === "nivel 3" ? Math.floor(Math.random() * 3) + 2 : 1;
+  const passo = nivel === "nivel 3" ? 2 : 1;
 
   const inicio = Math.max(1, Math.floor(Math.random() * (max - passo * 5)));
 

@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { AppText as Text } from "@/components/AppText";
+import { StyleSheet, View } from "react-native";
 
 interface MetricaItemProps {
   label: string;

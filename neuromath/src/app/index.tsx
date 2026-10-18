@@ -1,5 +1,6 @@
 import { Link, useRouter } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { AppText as Text } from "@/components/AppText";
+import { Pressable, ScrollView, View } from "react-native";
 import { useEstrelas } from "../context/EstrelasContext";
 
 const CRIANCA_NOME = "User";

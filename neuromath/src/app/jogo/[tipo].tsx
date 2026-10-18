@@ -25,6 +25,7 @@ interface Pergunta {
   subtraendo?: number;
 
   // sequencia
+  posicaoLacuna?: number;
   sequencia?: number[];
 }
 
@@ -78,26 +79,62 @@ function sortearEmoji(): string {
 
 // --- Gerar perguntas mockadas -----------------------------
 
-function gerarAlternativas(correta: number): number[] {
-  const alternativas = new Set<number>([correta]);
+function embaralhar<T>(items: T[]): T[] {
+  const resultado = [...items];
 
-  const variacoes = [-3, -2, -1, 1, 2, 3, 4, 5];
+  for (let i = resultado.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [resultado[i], resultado[j]] = [resultado[j], resultado[j]];
+  }
 
-  for (const variacao of variacoes) {
-    if (alternativas.size >= 4) break;
+  return resultado;
+}
 
-    const alternativa = correta + variacao;
+function gerarAlternativas(
+  correta: number,
+  ordenar: boolean = false,
+): number[] {
+  const set = new Set<number>([correta]);
 
-    if (alternativa >= 0) {
-      alternativas.add(alternativa);
+  //range de distorção proporcional a respota
+
+  const maxDistorcao = correta <= 5 ? 2 : correta <= 15 ? 3 : 4;
+
+  let tentativas = 0;
+
+  while (set.size < 4 && tentativas < 100) {
+    tentativas++;
+
+    //gerar uma distorção entre 1 e maxDistocao, positiva ou negativa
+    const magnitude = Math.floor(Math.random() * maxDistorcao) + 1;
+    const sinal = Math.random() < 0.5 ? 1 : -1;
+    const candidato = correta + sinal * magnitude;
+
+    //garante que canditado é positivo e não se repete
+    if (candidato > 0 && !set.has(candidato)) {
+      set.add(candidato);
     }
   }
 
-  return [...alternativas].sort(() => Math.random() - 0.5);
+  // fallback: caso ainda não tiver 4 numeros (um caso onde o numero é muito pequeno )
+  //prenche com incrementos seguros
+  let incremento = 1;
+  while (set.size < 4) {
+    const candidato = correta + incremento;
+    if (!set.has(candidato) && candidato > 0) set.add(candidato);
+    incremento++;
+  }
+
+  const resultado = [...set];
+  return ordenar
+    ? resultado.sort((a, b) => a - b)
+    : resultado.sort(() => Math.random() - 0.5);
 }
 
 function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
   const max = nivel === "nivel 1" ? 10 : nivel === "nivel 2" ? 20 : 30;
+
+  const ordenar = nivel !== "nivel 3";
 
   // ---------------- CONTAGEM ----------------
 
@@ -110,7 +147,7 @@ function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
       emoji: emoji[Math.floor(Math.random() * emoji.length)],
       quantidadeExibida: qtd,
       respostaCorreta: qtd,
-      alternativas: gerarAlternativas(qtd),
+      alternativas: gerarAlternativas(qtd, ordenar),
     };
   }
 
@@ -126,7 +163,7 @@ function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
       parcela1: p1,
       parcela2: p2,
       respostaCorreta: p1 + p2,
-      alternativas: gerarAlternativas(p1 + p2),
+      alternativas: gerarAlternativas(p1 + p2, ordenar),
     };
   }
 
@@ -135,14 +172,15 @@ function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
   if (tipo === "subtracao") {
     const min = Math.max(2, Math.floor(Math.random() * max));
 
-    const sub = Math.floor(Math.random() * min);
+    const subMin = nivel === "nivel 1" ? 1 : 0;
+    const sub = subMin + Math.floor(Math.random() * (min - subMin));
 
     return {
       emoji: sortearEmoji(),
       minuendo: min,
       subtraendo: sub,
       respostaCorreta: min - sub,
-      alternativas: gerarAlternativas(min - sub),
+      alternativas: gerarAlternativas(min - sub, ordenar),
     };
   }
 
@@ -150,16 +188,31 @@ function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
 
   const passo = nivel === "nivel 3" ? Math.floor(Math.random() * 3) + 2 : 1;
 
-  const inicio = Math.max(1, Math.floor(Math.random() * (max - passo * 4)));
+  const inicio = Math.max(1, Math.floor(Math.random() * (max - passo * 5)));
 
-  const seq = [0, 1, 2, 3].map((i) => inicio + i * passo);
+  const tamanhoTotal = 5;
 
-  const correta = inicio + 4 * passo;
+  const posicaoLacuna =
+    nivel === "nivel 1"
+      ? tamanhoTotal - 1
+      : Math.floor(Math.random() * (tamanhoTotal - 1)) + 1;
+
+  const sequenciaCompleta = Array.from(
+    { length: tamanhoTotal },
+    (_, i) => inicio + i * passo,
+  );
+
+  const correta = sequenciaCompleta[posicaoLacuna];
+
+  const sequenciaVisivel = sequenciaCompleta.filter(
+    (_, i) => i !== posicaoLacuna,
+  );
 
   return {
-    sequencia: seq,
+    sequencia: sequenciaVisivel,
+    posicaoLacuna,
     respostaCorreta: correta,
-    alternativas: gerarAlternativas(correta),
+    alternativas: gerarAlternativas(correta, ordenar),
   };
 }
 
@@ -175,8 +228,9 @@ function QContagem({ p }: { p: Pergunta }) {
     >
       <Text
         style={{
-          fontSize: 16,
-          color: "#6B7280",
+          fontSize: 20,
+          color: "#1F2937",
+          fontWeight: "600",
         }}
       >
         Quantos {p.emoji} você vê?
@@ -196,7 +250,7 @@ function QContagem({ p }: { p: Pergunta }) {
           <Text
             key={i}
             style={{
-              fontSize: 32,
+              fontSize: 36,
             }}
           >
             {p.emoji}
@@ -355,75 +409,67 @@ function QSubtracao({ p }: { p: Pergunta }) {
 }
 
 function QSequencia({ p }: { p: Pergunta }) {
+  const posicao = p.posicaoLacuna ?? 4;
+  const sequencia = p.sequencia ?? [];
+
+  const items: (number | null)[] = [];
+  let idx = 0;
+  for (let i = 0; i < 5; i++) {
+    if (i === posicao) {
+      items.push(null);
+    } else {
+      items.push(sequencia[idx++]);
+    }
+  }
+
   return (
-    <View
-      style={{
-        alignItems: "center",
-        gap: 12,
-      }}
-    >
-      <Text
-        style={{
-          fontSize: 16,
-          color: "#6B7280",
-        }}
-      >
+    <View style={{ alignItems: "center", gap: 12 }}>
+      <Text style={{ fontSize: 18, color: "#374151", fontWeight: "600" }}>
         Complete a sequência:
       </Text>
-
-      <View
-        style={{
-          flexDirection: "row",
-          gap: 8,
-        }}
-      >
-        {(p.sequencia ?? []).map((n, i) => (
-          <View
-            key={i}
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 12,
-              backgroundColor: "#F3F4F6",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text
+      <View style={{ flexDirection: "row", gap: 8 }}>
+        {items.map((n, i) =>
+          n === null ? (
+            <View
+              key={i}
               style={{
-                fontSize: 20,
-                fontWeight: "bold",
-                color: "#1A1A2E",
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                borderWidth: 2,
+                borderColor: "#F59E0B",
+                borderStyle: "dashed",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "#FFFBEB",
               }}
             >
-              {n}
-            </Text>
-          </View>
-        ))}
-
-        <View
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: 12,
-            borderWidth: 2,
-            borderColor: "#F59E0B",
-            borderStyle: "dashed",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#FFFBEB",
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              color: "#F59E0B",
-            }}
-          >
-            ?
-          </Text>
-        </View>
+              <Text
+                style={{ fontSize: 20, fontWeight: "bold", color: "#F59E0B" }}
+              >
+                ?
+              </Text>
+            </View>
+          ) : (
+            <View
+              key={i}
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                backgroundColor: "#F3F4F6",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text
+                style={{ fontSize: 20, fontWeight: "bold", color: "#1A1A2E" }}
+              >
+                {n}
+              </Text>
+            </View>
+          ),
+        )}
       </View>
     </View>
   );
@@ -907,6 +953,7 @@ export default function Jogo() {
               color: "white",
               fontWeight: "bold",
               fontSize: 16,
+              justifyContent: "center",
             }}
           >
             Jogar novamente
@@ -934,6 +981,7 @@ export default function Jogo() {
               color: cfg.cor,
               fontWeight: "bold",
               fontSize: 16,
+              justifyContent: "center",
             }}
           >
             Voltar ao início

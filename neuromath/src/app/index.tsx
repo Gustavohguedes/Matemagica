@@ -102,11 +102,6 @@ export default function Home() {
             asChild
           >
             <Pressable
-              onPress={() => {
-                console.log("🎮 ATIVIDADE SELECIONADA");
-                console.log("📌 Tipo:", atividade.tipo);
-                console.log("📖 Título:", atividade.titulo);
-              }}
               style={{
                 width: "47%",
                 backgroundColor: atividade.bg,
@@ -143,7 +138,7 @@ export default function Home() {
                 {atividade.titulo}
               </Text>
               <Text
-                style={{ fontSize: 12, color: "#6B7280", textAlign: "center" }}
+                style={{ fontSize: 12, color: "#334155", textAlign: "center" }}
               >
                 {atividade.descricao}
               </Text>

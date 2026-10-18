@@ -62,7 +62,7 @@ export default function Home() {
         >
           Olá, {CRIANCA_NOME}!
         </Text>
-        <Text style={{ fontSize: 16, color: "#6B7280", marginTop: 4 }}>
+        <Text style={{ fontSize: 16, color: "#000000", marginTop: 4 }}>
           Vamos praticar matemática hoje?
         </Text>
       </View>
@@ -152,7 +152,7 @@ export default function Home() {
       <Text
         style={{
           textAlign: "center",
-          color: "#9CA3AF",
+          color: "#000000",
           fontSize: 12,
           marginTop: 32,
         }}

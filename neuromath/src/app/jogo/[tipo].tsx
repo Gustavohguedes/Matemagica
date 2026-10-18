@@ -173,7 +173,7 @@ function gerarPergunta(tipo: string, nivel: Nivel): Pergunta {
   if (tipo === "subtracao") {
     const min = Math.max(2, Math.floor(Math.random() * max));
 
-    const subMin = nivel === "nivel 1" ? 1 : 0;
+    const subMin = 1;
     const sub = subMin + Math.floor(Math.random() * (min - subMin));
 
     return {
@@ -230,7 +230,7 @@ function QContagem({ p }: { p: Pergunta }) {
       <Text
         style={{
           fontSize: 20,
-          color: "#1F2937",
+          color: "#000000",
           fontWeight: "600",
           fontFamily: "AtkinsonHyperlegible_400Regular",
         }}
@@ -362,17 +362,26 @@ function QAdicao({ p }: { p: Pergunta }) {
 function QSubtracao({ p }: { p: Pergunta }) {
   const total = p.minuendo ?? 0;
   const aRemovidos = p.subtraendo ?? 0;
-  const [removidos, setRemovidos] = useState<Set<number>>(new Set());
+  const [estadoRemocao, setEstadoRemocao] = useState<{
+    pergunta: Pergunta;
+    indices: Set<number>;
+  }>(() => ({ pergunta: p, indices: new Set() }));
+  const removidos =
+    estadoRemocao.pergunta === p ? estadoRemocao.indices : new Set<number>();
 
   function toggleRemover(i: number) {
-    setRemovidos((prev) => {
-      const novo = new Set(prev);
+    setEstadoRemocao((estadoAtual) => {
+      const indicesAtuais =
+        estadoAtual.pergunta === p ? estadoAtual.indices : new Set<number>();
+      const novo = new Set(indicesAtuais);
+
       if (novo.has(i)) {
         novo.delete(i);
       } else if (novo.size < aRemovidos) {
         novo.add(i);
       }
-      return novo;
+
+      return { pergunta: p, indices: novo };
     });
   }
 
@@ -427,7 +436,7 @@ function QSubtracao({ p }: { p: Pergunta }) {
         ))}
       </View>
 
-      <Text style={{ fontSize: 12, color: "#6B7280" }}>
+      <Text style={{ fontSize: 12, color: "#000000" }}>
         {todosRemovidos
           ? `✅ Você retirou ${aRemovidos}!`
           : `Toque para retirar ${aRemovidos - removidos.size} ${p.emoji}`}
@@ -452,7 +461,7 @@ function QSequencia({ p }: { p: Pergunta }) {
 
   return (
     <View style={{ alignItems: "center", gap: 12 }}>
-      <Text style={{ fontSize: 18, color: "#374151", fontWeight: "600" }}>
+      <Text style={{ fontSize: 18, color: "#000000", fontWeight: "600" }}>
         Complete a sequência:
       </Text>
       <View style={{ flexDirection: "row", gap: 8 }}>
@@ -534,7 +543,7 @@ function MetricaItem({
       <Text
         style={{
           fontSize: 11,
-          color: "#9CA3AF",
+          color: "#000000",
           textAlign: "center",
         }}
       >
@@ -800,7 +809,7 @@ export default function Jogo() {
         <Text
           style={{
             fontSize: 18,
-            color: "#6B7280",
+            color: "#000000",
             marginTop: 8,
           }}
         >
@@ -910,7 +919,7 @@ export default function Jogo() {
               <Text
                 style={{
                   fontSize: 15,
-                  color: "#374151",
+                  color: "#000000",
                   flex: 1,
                 }}
               >
@@ -934,7 +943,7 @@ export default function Jogo() {
                 style={{
                   fontSize: 15,
                   fontWeight: "bold",
-                  color: "#6B7280",
+                  color: "#000000",
                   width: 55,
                   textAlign: "right",
                 }}
@@ -1117,7 +1126,7 @@ export default function Jogo() {
         <Text
           style={{
             fontSize: 14,
-            color: "#374151",
+            color: "#000000",
             fontWeight: "600",
           }}
         >

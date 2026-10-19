@@ -1,6 +1,6 @@
 {
   "root": "neuromath",
-  "buildCommand": "expo export -p web",
+  "buildCommand": "cd neuromath && expo export -p web",
   "outputDirectory": "neuromath/dist",
   "framework": null,
   "rewrites": [
